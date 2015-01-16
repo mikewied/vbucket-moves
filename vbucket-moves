@@ -17,6 +17,10 @@ import logging
 
 from pylab import *
 
+FORMAT = "%(asctime)s vbucket-moves %(levelname)-8s: %(message)s"
+logging.basicConfig(format=FORMAT)
+logger = logging.getLogger('tcpserver')
+
 class MasterEvents(object):
 
     def __init__(self):
@@ -26,7 +30,7 @@ class MasterEvents(object):
         try:
             self.file = open(filename, 'r')
         except IOError, e:
-            logging.warn(e)
+            logger.error(e)
             return None
 
         data = self._rebalances()
@@ -163,7 +167,7 @@ def plot_single(name, moves):
     #moves = [(0, 0, 5, 10, 15, 20), (1, 10, 15, 20, 25, 30)]
 
     if len(moves) == 0:
-        logging.warn("No rebalance data for \'%s\'" % name)
+        logger.error("No rebalance data for \'%s\'" % name)
         return
 
     fig = plt.figure(figsize=(50, len(moves)/4))
@@ -219,16 +223,30 @@ def plot_single(name, moves):
     plt.savefig(name + '.png', bbox_inches='tight', dpi=120)
     #plt.show()
 
+def set_log_level(level):
+    if level == 0:
+        logger.setLevel(logging.ERROR)
+    elif level == 1:
+        logger.setLevel(logging.INFO)
+    elif level == 2:
+        logger.setLevel(logging.INFO)
+    else:
+        logger.setLevel(logging.DEBUG)
+
 def main():
     parser = argparse.ArgumentParser(prog='vbucket-moves',
                                      usage='%(prog)s -f <file> [options]',
                                      add_help=True)
 
     parser.add_argument('-f', '--file', required=True,
-                        help='the path to the master events file')
+                        help='The path to the master events file')
+    parser.add_argument('-v', '--verbose', action='count',
+                        help='Increase verbosity')
+    parser.add_argument
 
     args = parser.parse_args()
     filename = args.file
+    set_log_level(args.verbose)
 
     events = MasterEvents()
     data = events.parse(filename)

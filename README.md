@@ -5,4 +5,4 @@ The ouput of this tool is a gantt chart of vbucket movements which show how long
 
 To run the tool type the following:
 
-python vbucket-moves.py
+./vbucket-moves

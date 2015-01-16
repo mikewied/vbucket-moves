@@ -21,7 +21,12 @@ class MasterEvents(object):
         pass
 
     def parse(self, filename):
-        self.file = open(filename, 'r')
+        try:
+            self.file = open(filename, 'r')
+        except IOError, e:
+            logging.warn(e)
+            return None
+
         data = self._rebalances()
         self.file.close()
         return data
@@ -215,6 +220,10 @@ def plot_single(name, moves):
 def main():
     events = MasterEvents()
     data = events.parse("master_events.log")
+
+    if not data:
+        return
+
     moves = convert(data)
     plot(moves)
     #print json.dumps(data, sort_keys=True, indent=2)
